@@ -39,4 +39,18 @@ describe('Hello', () => {
         expect(capturedName).toEqual(name);
         expect(response).toEqual('Hello John!');
     });
+
+    it('raises an exception when a request failed', async () => {
+       // GIVEN
+       server.withPost('/hello', (req: FastifyRequest<{Body:{name:string}}>, res) => {
+         throw new Error('Error Simulation Test');
+       } );
+
+       await server.start();
+
+       const repository = new HelloHttpRepository(`http://localhost:${port}`);
+
+       // WHEN
+         await expect(repository.hello('John')).rejects.toThrow(new Error('Try again later'));
+    } )
 })
